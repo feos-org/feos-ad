@@ -1,0 +1,34 @@
+[package]
+name = "feos-ad"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "feos_ad"
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+num-dual = "0.10"
+quantity = { version = "0.9", features = ["num-dual"] }
+nalgebra = "0.33"
+# feos-core = "0.7"
+feos-core = { path = "../feos/feos-core" }
+ndarray = "0.16"
+num-traits = "0.2"
+
+[dependencies.pyo3]
+version = "0.22"
+features = ["extension-module", "abi3", "abi3-py37"]
+optional = true
+
+[dev-dependencies]
+# feos = { version = "0.7", features = ["pcsaft"] }
+feos = { path = "../feos", features = ["pcsaft", "gc_pcsaft"] }
+approx = "0.5"
+
+[profile.release]
+lto = true
+
+[features]
+default = []
+python = ["pyo3"]
