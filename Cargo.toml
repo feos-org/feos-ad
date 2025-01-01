@@ -1,34 +1,36 @@
 [package]
 name = "feos-ad"
 version = "0.1.0"
+authors = ["Philipp Rehner <prehner@ethz.ch"]
 edition = "2021"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+description = "FeOs-AD - Implicit automatic differentiation of equations of state and phase equilibria."
+homepage = "https://github.com/feos-org"
+repository = "https://github.com/feos-org/feos-ad"
+keywords = [
+    "thermodynamics",
+    "equations_of_state",
+    "phase_equilibria",
+    "automatic_differentiation",
+]
+categories = ["science"]
 
-[lib]
-name = "feos_ad"
-crate-type = ["rlib", "cdylib"]
+[workspace]
+members = ["feos-campd-ad"]
 
 [dependencies]
-num-dual = "0.10"
-quantity = { version = "0.9", features = ["num-dual"] }
+num-dual = "0.11"
+quantity = { version = "0.10", features = ["num-dual"] }
 nalgebra = "0.33"
 # feos-core = "0.7"
-feos-core = { path = "../feos/feos-core" }
+feos-core = { git = "https://github.com/feos-org/feos" }
 ndarray = "0.16"
-num-traits = "0.2"
-
-[dependencies.pyo3]
-version = "0.22"
-features = ["extension-module", "abi3", "abi3-py37"]
-optional = true
 
 [dev-dependencies]
-# feos = { version = "0.7", features = ["pcsaft"] }
-feos = { path = "../feos", features = ["pcsaft", "gc_pcsaft"] }
+# feos = { version = "0.7", features = ["pcsaft", "gc_pcsaft"] }
+feos = { git = "https://github.com/feos-org/feos", features = [
+    "pcsaft",
+    "gc_pcsaft",
+] }
 approx = "0.5"
-
-[profile.release]
-lto = true
-
-[features]
-default = []
-python = ["pyo3"]
