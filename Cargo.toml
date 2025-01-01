@@ -31,3 +31,7 @@ feos = { git = "https://github.com/feos-org/feos", features = [
     "gc_pcsaft",
 ] }
 approx = "0.5"
+
+[features]
+default = []
+parameter_fit = []

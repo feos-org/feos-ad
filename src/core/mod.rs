@@ -91,12 +91,12 @@ impl<E: NamedParameters, const N: usize> HelmholtzEnergyWrapper<E, f64, N> {
     pub fn named_derivatives<const P: usize>(
         &self,
         parameters: [&str; P],
-    ) -> E::Parameters<DualVec<f64, f64, Const<P>>> {
+    ) -> HelmholtzEnergyWrapper<E, DualVec<f64, f64, Const<P>>, N> {
         let mut params: E::Parameters<DualVec<f64, f64, Const<P>>> = self.eos.0.params();
         for (i, p) in parameters.into_iter().enumerate() {
             E::index_parameters_mut(&mut params, p).eps =
                 Derivative::derivative_generic(Const::<P>, U1, i)
         }
-        params
+        self.derivatives(params)
     }
 }

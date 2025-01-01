@@ -119,6 +119,7 @@ pub mod test {
         Ok((PcSaftPure(params), eos))
     }
 
+    #[cfg(feature = "parameter_fit")]
     pub fn pcsaft_non_assoc() -> EosResult<(PcSaftPure<4>, Arc<PcSaft>)> {
         let m = 1.5;
         let sigma = 3.4;
