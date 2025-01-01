@@ -28,6 +28,6 @@ The following **models** are implemented:
 
 ## Installation
 Just add the dependency to your `Cargo.toml`
-```
+```toml
 feos-ad = "0.1"
 ```
