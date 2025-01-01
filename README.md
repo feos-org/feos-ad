@@ -5,6 +5,9 @@
 
 The `FeOs-AD` crate builds on the implementation of phase equilibrium calculations in `FeOs` to provide implicit automatic differentiation of properties and phase equilibria based on Helmholtz energy equations of state. Derivatives can be determined for any inputs, like temperature or pressure, but also model parameters.
 
+Derivatives are calculated using forward automatic differentiation with generalized (hyper-) dual numbers from the [`num-dual`](https://github.com/itt-ustutt/num-dual) crate.
+
+## Contents
 For now, the most important properties and phase equilibria are implemented:
 - **State construction**
     - from temperature and pressure
