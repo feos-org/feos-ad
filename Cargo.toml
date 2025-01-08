@@ -20,16 +20,11 @@ categories = ["science"]
 num-dual = "0.11"
 quantity = { version = "0.10", features = ["num-dual"] }
 nalgebra = "0.33"
-# feos-core = "0.7"
-feos-core = { git = "https://github.com/feos-org/feos" }
+feos-core = "0.8"
 ndarray = "0.16"
 
 [dev-dependencies]
-# feos = { version = "0.7", features = ["pcsaft", "gc_pcsaft"] }
-feos = { git = "https://github.com/feos-org/feos", features = [
-    "pcsaft",
-    "gc_pcsaft",
-] }
+feos = { version = "0.8", features = ["pcsaft", "gc_pcsaft"] }
 approx = "0.5"
 
 [features]

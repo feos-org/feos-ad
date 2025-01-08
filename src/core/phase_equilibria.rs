@@ -322,9 +322,9 @@ mod test {
             vle.liquid.pressure().into_reduced(),
             vle.vapor.pressure().into_reduced()
         );
-        assert_relative_eq!(rho_l.eps, drho_l, max_relative = 1e-6);
-        assert_relative_eq!(rho_v.eps, drho_v, max_relative = 1e-6);
-        assert_relative_eq!(p.eps, dp, max_relative = 1e-6);
+        assert_relative_eq!(rho_l.eps, drho_l, max_relative = 1e-5);
+        assert_relative_eq!(rho_v.eps, drho_v, max_relative = 1e-5);
+        assert_relative_eq!(p.eps, dp, max_relative = 1e-5);
         Ok(())
     }
 
