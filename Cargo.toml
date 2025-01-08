@@ -12,7 +12,7 @@ keywords = [
     "thermodynamics",
     "equations_of_state",
     "phase_equilibria",
-    "automatic_differentiation",
+    "autodiff",
 ]
 categories = ["science"]
 
