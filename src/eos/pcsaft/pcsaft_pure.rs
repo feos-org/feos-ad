@@ -1,5 +1,4 @@
 use super::{A0, A1, A2, AD, B0, B1, B2, BD, CD, MAX_ETA};
-use crate::eos::ChemicalRecord;
 use crate::{NamedParameters, ParametersAD, ResidualHelmholtzEnergy};
 use nalgebra::SVector;
 use num_dual::DualNum;
@@ -7,44 +6,44 @@ use std::f64::consts::{FRAC_PI_6, PI};
 
 const PI_SQ_43: f64 = 4.0 / 3.0 * PI * PI;
 
-const GROUPS: [&str; 22] = [
-    "CH3", "CH2", ">CH", ">C<", "=CH2", "=CH", "=C<", "C≡CH", "CH2_hex", "CH_hex", "CH2_pent",
-    "CH_pent", "CH_arom", "C_arom", "CH=O", ">C=O", "OCH3", "OCH2", "HCOO", "COO", "OH", "NH2",
-];
-const M: [f64; 22] = [
-    0.61198, 0.45606, 0.14304, -0.66997, 0.36939, 0.56361, 0.86367, 1.3279, 0.39496, 0.0288,
-    0.46742, 0.03314, 0.42335, 0.15371, 1.5774, 1.223, 1.6539, 1.1349, 1.7525, 1.5063, 0.402,
-    0.40558,
-];
-const SIGMA: [f64; 22] = [
-    3.7202, 3.89, 4.8597, -1.7878, 4.0264, 3.5519, 3.1815, 2.9421, 3.9126, 8.9779, 3.7272, 7.719,
-    3.727, 3.9622, 2.8035, 2.8124, 3.0697, 3.2037, 2.9043, 2.8166, 3.2859, 3.6456,
-];
+// const GROUPS: [&str; 22] = [
+//     "CH3", "CH2", ">CH", ">C<", "=CH2", "=CH", "=C<", "C≡CH", "CH2_hex", "CH_hex", "CH2_pent",
+//     "CH_pent", "CH_arom", "C_arom", "CH=O", ">C=O", "OCH3", "OCH2", "HCOO", "COO", "OH", "NH2",
+// ];
+// const M: [f64; 22] = [
+//     0.61198, 0.45606, 0.14304, -0.66997, 0.36939, 0.56361, 0.86367, 1.3279, 0.39496, 0.0288,
+//     0.46742, 0.03314, 0.42335, 0.15371, 1.5774, 1.223, 1.6539, 1.1349, 1.7525, 1.5063, 0.402,
+//     0.40558,
+// ];
+// const SIGMA: [f64; 22] = [
+//     3.7202, 3.89, 4.8597, -1.7878, 4.0264, 3.5519, 3.1815, 2.9421, 3.9126, 8.9779, 3.7272, 7.719,
+//     3.727, 3.9622, 2.8035, 2.8124, 3.0697, 3.2037, 2.9043, 2.8166, 3.2859, 3.6456,
+// ];
 
-const EPSILON_K: [f64; 22] = [
-    229.9, 239.01, 347.64, 107.68, 289.49, 216.69, 156.31, 223.05, 289.03, 1306.7, 267.16, 1297.7,
-    274.41, 527.2, 242.99, 249.04, 196.05, 187.13, 229.63, 222.52, 488.66, 467.59,
-];
-const MU: [f64; 22] = [
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.4556, 3.2432, 1.3866,
-    2.744, 2.7916, 3.1652, 0.0, 0.0,
-];
-const KAPPA_AB: [f64; 22] = [
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.006825, 0.026662,
-];
-const EPSILON_K_AB: [f64; 22] = [
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 2517.0, 1064.6,
-];
-const NA: [f64; 22] = [
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 1.0, 1.0,
-];
-const NB: [f64; 22] = [
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 1.0, 1.0,
-];
+// const EPSILON_K: [f64; 22] = [
+//     229.9, 239.01, 347.64, 107.68, 289.49, 216.69, 156.31, 223.05, 289.03, 1306.7, 267.16, 1297.7,
+//     274.41, 527.2, 242.99, 249.04, 196.05, 187.13, 229.63, 222.52, 488.66, 467.59,
+// ];
+// const MU: [f64; 22] = [
+//     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.4556, 3.2432, 1.3866,
+//     2.744, 2.7916, 3.1652, 0.0, 0.0,
+// ];
+// const KAPPA_AB: [f64; 22] = [
+//     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+//     0.0, 0.006825, 0.026662,
+// ];
+// const EPSILON_K_AB: [f64; 22] = [
+//     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+//     0.0, 2517.0, 1064.6,
+// ];
+// const NA: [f64; 22] = [
+//     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+//     0.0, 1.0, 1.0,
+// ];
+// const NB: [f64; 22] = [
+//     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+//     0.0, 1.0, 1.0,
+// ];
 
 /// Optimized implementation of PC-SAFT for a single component.
 #[derive(Clone, Copy)]
@@ -102,7 +101,7 @@ fn helmholtz_energy_density_non_assoc<D: DualNum<f64> + Copy>(
     let disp = -density * density * m.powi(2) * e * s3 * i * PI;
 
     // dipoles
-    let mu2 = mu.powi(2) / (m * temperature) / 1.380649e-4;
+    let mu2 = mu.powi(2) / (m * temperature * 1.380649e-4);
     let m_dipole = if m.re() > 2.0 { D::from(2.0) } else { m };
     let m1 = (m_dipole - 1.0) / m_dipole;
     let m2 = m1 * (m_dipole - 2.0) / m_dipole;
@@ -147,40 +146,6 @@ fn helmholtz_energy_density<D: DualNum<f64> + Copy>(
     let assoc = rhoa * (xa.ln() - xa * 0.5 + 0.5) + rhob * (xb.ln() - xb * 0.5 + 0.5);
 
     non_assoc + assoc * temperature
-}
-
-impl PcSaftPure<8> {
-    pub fn from_groups<D: DualNum<f64> + Copy>(group_counts: [D; 22]) -> [D; 8] {
-        let m: D = M.into_iter().zip(group_counts).map(|(m, g)| g * m).sum();
-        let m_sigma3 = M.into_iter().zip(SIGMA).map(|(m, s)| m * s.powi(3));
-        let m_sigma3: D = m_sigma3.zip(group_counts).map(|(ms3, g)| g * ms3).sum();
-        let sigma = (m_sigma3 / m).cbrt();
-        let m_epsilon_k = M.into_iter().zip(EPSILON_K).map(|(m, e)| m * e);
-        let m_epsilon_k: D = m_epsilon_k.zip(group_counts).map(|(me, g)| g * me).sum();
-        let epsilon_k = m_epsilon_k / m;
-        let mu = MU.into_iter().zip(group_counts).map(|(m, g)| g * m).sum();
-        let kappa_ab = KAPPA_AB
-            .into_iter()
-            .zip(group_counts)
-            .map(|(m, g)| g * m)
-            .sum();
-        let epsilon_k_ab = EPSILON_K_AB
-            .into_iter()
-            .zip(group_counts)
-            .map(|(m, g)| g * m)
-            .sum();
-        let na = NA.into_iter().zip(group_counts).map(|(m, g)| g * m).sum();
-        let nb = NB.into_iter().zip(group_counts).map(|(m, g)| g * m).sum();
-
-        [m, sigma, epsilon_k, mu, kappa_ab, epsilon_k_ab, na, nb]
-    }
-
-    pub fn from_chemical_record<D: DualNum<f64> + Copy>(
-        ChemicalRecord { groups, bonds: _ }: &ChemicalRecord<D>,
-    ) -> [D; 8] {
-        let group_counts = GROUPS.map(|g| groups[g]);
-        Self::from_groups(group_counts)
-    }
 }
 
 impl<const N: usize> ParametersAD for PcSaftPure<N> {

@@ -6,7 +6,7 @@ pub(crate) mod ideal_gas;
 pub(crate) mod pcsaft;
 pub use gc_pcsaft::{GcPcSaft, GcPcSaftParameters};
 pub use ideal_gas::Joback;
-pub use pcsaft::PcSaftPure;
+pub use pcsaft::{PcSaftBinary, PcSaftPure};
 
 /// Input for group-contribution models that allows for derivatives.
 pub struct ChemicalRecord<D> {

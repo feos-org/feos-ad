@@ -1,4 +1,6 @@
-pub(crate) mod pcsaft_pure;
+mod pcsaft_binary;
+mod pcsaft_pure;
+pub use pcsaft_binary::PcSaftBinary;
 pub use pcsaft_pure::PcSaftPure;
 
 const MAX_ETA: f64 = 0.5;
@@ -84,9 +86,9 @@ pub const CD: [[f64; 3]; 4] = [
 
 #[cfg(test)]
 pub mod test {
-    use super::PcSaftPure;
-    use feos::pcsaft::{PcSaft, PcSaftParameters, PcSaftRecord};
-    use feos_core::parameter::Parameter;
+    use super::{PcSaftBinary, PcSaftPure};
+    use feos::pcsaft::{PcSaft, PcSaftBinaryRecord, PcSaftParameters, PcSaftRecord};
+    use feos_core::parameter::{Parameter, PureRecord};
     use feos_core::EosResult;
     use std::sync::Arc;
 
@@ -117,6 +119,43 @@ pub mod test {
         let eos = Arc::new(PcSaft::new(Arc::new(params)));
         let params = [m, sigma, epsilon_k, mu, kappa_ab, epsilon_k_ab, na, nb];
         Ok((PcSaftPure(params), eos))
+    }
+
+    pub fn pcsaft_binary() -> EosResult<(PcSaftBinary, Arc<PcSaft>)> {
+        let params = [
+            [1.5, 3.4, 180.0, 2.2, 0.03, 2500., 2.0, 1.0],
+            [2.5, 3.6, 250.0, 1.2, 0.015, 1500., 1.0, 2.0],
+        ];
+        let kij = 0.15;
+        let records = params
+            .map(|p| {
+                PureRecord::new(
+                    Default::default(),
+                    0.0,
+                    PcSaftRecord::new(
+                        p[0],
+                        p[1],
+                        p[2],
+                        Some(p[3]),
+                        None,
+                        Some(p[4]),
+                        Some(p[5]),
+                        Some(p[6]),
+                        Some(p[7]),
+                        None,
+                        None,
+                        None,
+                        None,
+                    ),
+                )
+            })
+            .to_vec();
+        let params_feos = PcSaftParameters::new_binary(
+            records,
+            Some(PcSaftBinaryRecord::new(Some(kij), None, None)),
+        )?;
+        let eos = Arc::new(PcSaft::new(Arc::new(params_feos)));
+        Ok((PcSaftBinary::new(params, kij), eos))
     }
 
     #[cfg(feature = "parameter_fit")]
