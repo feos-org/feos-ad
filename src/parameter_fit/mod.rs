@@ -1,4 +1,4 @@
-use crate::{core::NamedParameters, HelmholtzEnergyWrapper, ResidualHelmholtzEnergy};
+use crate::{HelmholtzEnergyWrapper, ResidualHelmholtzEnergy};
 use feos_core::{
     DensityInitialization::Liquid, EosResult, PhaseEquilibrium, ReferenceSystem, State,
 };
@@ -9,7 +9,7 @@ use quantity::{Density, Moles, Pressure, Temperature};
 
 type Gradient<const P: usize> = DualVec<f64, f64, Const<P>>;
 
-pub fn vapor_pressure<R: ResidualHelmholtzEnergy<1> + NamedParameters, const P: usize>(
+pub fn vapor_pressure<R: ResidualHelmholtzEnergy<1>, const P: usize>(
     eos: &HelmholtzEnergyWrapper<R, Gradient<P>, 1>,
     temperature: Temperature,
 ) -> EosResult<Pressure<Gradient<P>>> {
@@ -33,10 +33,7 @@ pub fn vapor_pressure<R: ResidualHelmholtzEnergy<1> + NamedParameters, const P: 
     Ok(Pressure::from_reduced(p))
 }
 
-pub fn equilibrium_liquid_density<
-    R: ResidualHelmholtzEnergy<1> + NamedParameters,
-    const P: usize,
->(
+pub fn equilibrium_liquid_density<R: ResidualHelmholtzEnergy<1>, const P: usize>(
     eos: &HelmholtzEnergyWrapper<R, Gradient<P>, 1>,
     temperature: Temperature,
 ) -> EosResult<(Pressure<Gradient<P>>, Density<Gradient<P>>)> {
@@ -61,7 +58,7 @@ pub fn equilibrium_liquid_density<
     Ok((Pressure::from_reduced(p), Density::from_reduced(rho)))
 }
 
-pub fn liquid_density<R: ResidualHelmholtzEnergy<1> + NamedParameters, const P: usize>(
+pub fn liquid_density<R: ResidualHelmholtzEnergy<1>, const P: usize>(
     eos: &HelmholtzEnergyWrapper<R, Gradient<P>, 1>,
     temperature: Temperature,
     pressure: Pressure,
