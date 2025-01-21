@@ -22,7 +22,7 @@ For now, the most important properties and phase equilibria are implemented:
     - pressure, molar entropy, molar enthalpy
 
 The following **models** are implemented:
-- **PC-SAFT** for pure components
+- **PC-SAFT** for pure components and binary mixtures
 - heterosegmented **gc-PC-SAFT** for pure components and mixtures
 - The **Joback & Reid** GC method for ideal gas heat capacities
 
