@@ -264,7 +264,7 @@ impl<'a, R: ResidualHelmholtzEnergy<N>, D: DualNum<f64> + Copy, const N: usize>
 mod test {
     use super::*;
     use crate::eos::pcsaft::test::pcsaft;
-    use crate::eos::{ChemicalRecord, GcPcSaft, GcPcSaftParameters, Joback};
+    use crate::eos::{GcPcSaft, GcPcSaftParameters, Joback};
     use crate::EquationOfStateAD;
     use approx::assert_relative_eq;
     use feos_core::{Contributions, DensityInitialization, EosResult, PhaseEquilibrium};
@@ -328,44 +328,49 @@ mod test {
         Ok(())
     }
 
-    fn acetone() -> ChemicalRecord<f64> {
+    fn acetone_pentane_parameters() -> GcPcSaftParameters<f64, 2> {
+        let mut groups1 = HashMap::new();
+        groups1.insert("CH3", 2.0);
+        groups1.insert(">C=O", 1.0);
+        let mut bonds1 = HashMap::new();
+        bonds1.insert(["CH3", ">C=O"], 2.0);
+        let mut groups2 = HashMap::new();
+        groups2.insert("CH3", 2.0);
+        groups2.insert("CH2", 3.0);
+        let mut bonds2 = HashMap::new();
+        bonds2.insert(["CH3", "CH2"], 2.0);
+        bonds2.insert(["CH2", "CH2"], 2.0);
+
+        GcPcSaftParameters::from_groups([&groups1, &groups2], [&bonds1, &bonds2])
+    }
+
+    fn acetone_groups() -> HashMap<&'static str, f64> {
         let mut groups = HashMap::new();
         groups.insert("CH3", 2.0);
         groups.insert(">C=O", 1.0);
-        let mut bonds = HashMap::new();
-        bonds.insert(["CH3", ">C=O"], 2.0);
-        ChemicalRecord::new(groups, bonds)
+        groups
     }
 
-    fn pentane() -> ChemicalRecord<f64> {
+    fn pentane_groups() -> HashMap<&'static str, f64> {
         let mut groups = HashMap::new();
         groups.insert("CH3", 2.0);
         groups.insert("CH2", 3.0);
-        let mut bonds = HashMap::new();
-        bonds.insert(["CH3", "CH2"], 2.0);
-        bonds.insert(["CH2", "CH2"], 2.0);
-        ChemicalRecord::new(groups, bonds)
+        groups
     }
 
     #[test]
     fn test_dew_point() -> EosResult<()> {
-        let params = GcPcSaft(GcPcSaftParameters::from_chemical_records(&[
-            acetone(),
-            pentane(),
-        ]));
+        let params = GcPcSaft(acetone_pentane_parameters());
         let joback = [
-            Joback(Joback::from_chemical_record(&acetone())),
-            Joback(Joback::from_chemical_record(&pentane())),
+            Joback(Joback::from_group_counts(&acetone_groups())),
+            Joback(Joback::from_group_counts(&pentane_groups())),
         ];
 
         let mut params_dual = params.params::<Dual64>();
         params_dual.groups[0].eps = 1.0;
         let joback_dual = joback.map(|j| j.params());
 
-        let mut params_h = GcPcSaft(GcPcSaftParameters::from_chemical_records(&[
-            acetone(),
-            pentane(),
-        ]));
+        let mut params_h = GcPcSaft(acetone_pentane_parameters());
         let h = 1e-7;
         params_h.0.groups[0] += h;
 
@@ -432,23 +437,17 @@ mod test {
 
     #[test]
     fn test_bubble_point() -> EosResult<()> {
-        let params = GcPcSaft(GcPcSaftParameters::from_chemical_records(&[
-            acetone(),
-            pentane(),
-        ]));
+        let params = GcPcSaft(acetone_pentane_parameters());
         let joback = [
-            Joback(Joback::from_chemical_record(&acetone())),
-            Joback(Joback::from_chemical_record(&pentane())),
+            Joback(Joback::from_group_counts(&acetone_groups())),
+            Joback(Joback::from_group_counts(&pentane_groups())),
         ];
 
         let mut params_dual = params.params::<Dual64>();
         params_dual.groups[0].eps = 1.0;
         let joback_dual = joback.map(|j| j.params());
 
-        let mut params_h = GcPcSaft(GcPcSaftParameters::from_chemical_records(&[
-            acetone(),
-            pentane(),
-        ]));
+        let mut params_h = GcPcSaft(acetone_pentane_parameters());
         let h = 1e-7;
         params_h.0.groups[0] += h;
 
@@ -515,23 +514,17 @@ mod test {
 
     #[test]
     fn test_tp_flash() -> EosResult<()> {
-        let params = GcPcSaft(GcPcSaftParameters::from_chemical_records(&[
-            acetone(),
-            pentane(),
-        ]));
+        let params = GcPcSaft(acetone_pentane_parameters());
         let joback = [
-            Joback(Joback::from_chemical_record(&acetone())),
-            Joback(Joback::from_chemical_record(&pentane())),
+            Joback(Joback::from_group_counts(&acetone_groups())),
+            Joback(Joback::from_group_counts(&pentane_groups())),
         ];
 
         let mut params_dual = params.params::<Dual64>();
         params_dual.groups[0].eps = 1.0;
         let joback_dual = joback.map(|j| j.params());
 
-        let mut params_h = GcPcSaft(GcPcSaftParameters::from_chemical_records(&[
-            acetone(),
-            pentane(),
-        ]));
+        let mut params_h = GcPcSaft(acetone_pentane_parameters());
         let h = 1e-5;
         params_h.0.groups[0] += h;
 

@@ -1,6 +1,6 @@
-use crate::eos::ChemicalRecord;
 use crate::{IdealGasAD, ParametersAD};
 use num_dual::DualNum;
+use std::collections::HashMap;
 
 const RGAS: f64 = 6.022140857 * 1.38064852;
 const T0: f64 = 298.15;
@@ -49,10 +49,8 @@ impl Joback {
         [a - 37.93, b + 0.21, c - 3.91e-4, d + 2.06e-7, D::zero()]
     }
 
-    pub fn from_chemical_record<D: DualNum<f64> + Copy>(
-        group_counts: &ChemicalRecord<D>,
-    ) -> [D; 5] {
-        Self::from_groups(GROUPS.map(|g| *group_counts.groups.get(g).unwrap_or(&D::zero())))
+    pub fn from_group_counts<D: DualNum<f64> + Copy>(group_counts: &HashMap<&str, D>) -> [D; 5] {
+        Self::from_groups(GROUPS.map(|g| *group_counts.get(g).unwrap_or(&D::zero())))
     }
 }
 

@@ -1,5 +1,4 @@
 use super::pcsaft::{A0, A1, A2, AD, B0, B1, B2, BD, CD};
-use crate::eos::ChemicalRecord;
 use crate::{ParametersAD, ResidualHelmholtzEnergy};
 use nalgebra::{SMatrix, SVector};
 use num_dual::DualNum;
@@ -196,20 +195,19 @@ impl<D: DualNum<f64> + Copy, const N: usize> GcPcSaftParameters<D, N> {
 }
 
 impl<D: DualNum<f64> + Copy, const N: usize> GcPcSaftParameters<D, N> {
-    pub fn from_chemical_records(records: &[ChemicalRecord<D>; N]) -> Self {
-        let groups = SMatrix::from(
-            records
-                .each_ref()
-                .map(|r| GROUPS.map(|g| *r.groups.get(g).unwrap_or(&D::zero()))),
-        );
+    pub fn from_groups(
+        group_map: [&HashMap<&'static str, D>; N],
+        bond_map: [&HashMap<[&'static str; 2], D>; N],
+    ) -> Self {
+        let groups =
+            SMatrix::from(group_map.map(|r| GROUPS.map(|g| *r.get(g).unwrap_or(&D::zero()))));
         let group_indices: HashMap<_, _> = GROUPS
             .into_iter()
             .enumerate()
             .map(|(g, i)| (i, g))
             .collect();
-        let bonds = records.each_ref().map(|r| {
-            r.bonds
-                .iter()
+        let bonds = bond_map.map(|r| {
+            r.iter()
                 .map(|([g1, g2], &c)| ([group_indices[g1], group_indices[g2]], c))
                 .collect()
         });
@@ -465,8 +463,8 @@ fn triplet_integral<D: DualNum<f64> + Copy>(mij1: D, mij2: D, eta: D) -> D {
 #[cfg(test)]
 pub mod test {
     use super::{
-        ChemicalRecord as ChemicalRecordAD, GcPcSaft as GcPcSaftAD, GcPcSaftParameters,
-        ResidualHelmholtzEnergy, EPSILON_K, GROUPS, M, MU, SIGMA,
+        GcPcSaft as GcPcSaftAD, GcPcSaftParameters, ResidualHelmholtzEnergy, EPSILON_K, GROUPS, M,
+        MU, SIGMA,
     };
     use approx::assert_relative_eq;
     use feos::gc_pcsaft::{GcPcSaft, GcPcSaftEosParameters, GcPcSaftRecord};
@@ -519,8 +517,7 @@ pub mod test {
         bonds.insert(["CH3", ">C=O"], 1.0);
         bonds.insert([">C=O", "CH2"], 1.0);
         bonds.insert(["CH2", "CH3"], 1.0);
-        let cr = ChemicalRecordAD { groups, bonds };
-        let params = GcPcSaftParameters::from_chemical_records(&[cr]);
+        let params = GcPcSaftParameters::from_groups([&groups], [&bonds]);
         Ok((params, eos))
     }
 

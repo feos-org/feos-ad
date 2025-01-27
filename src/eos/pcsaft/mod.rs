@@ -121,7 +121,7 @@ pub mod test {
         Ok((PcSaftPure(params), eos))
     }
 
-    pub fn pcsaft_binary() -> EosResult<(PcSaftBinary, Arc<PcSaft>)> {
+    pub fn pcsaft_binary() -> EosResult<(PcSaftBinary<8>, Arc<PcSaft>)> {
         let params = [
             [1.5, 3.4, 180.0, 2.2, 0.03, 2500., 2.0, 1.0],
             [2.5, 3.6, 250.0, 1.2, 0.015, 1500., 1.0, 2.0],
