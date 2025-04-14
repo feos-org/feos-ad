@@ -1,6 +1,8 @@
 use super::{ParametersAD, ResidualHelmholtzEnergy};
 use nalgebra::SVector;
-use num_dual::{first_derivative, gradient, Dual, DualNum, DualVec};
+use num_dual::{
+    first_derivative, gradient, hessian, second_derivative, Dual, Dual2, Dual2Vec, DualNum, DualVec,
+};
 
 /// Implementation of an ideal gas Helmholtz energy contribution.
 pub trait IdealGasAD: ParametersAD {
@@ -154,6 +156,43 @@ pub trait TotalHelmholtzEnergy<const N: usize>: ResidualHelmholtzEnergy<N> {
         );
         let [da_dt, da_dv] = da.data.0[0];
         a - temperature * da_dt - molar_volume * da_dv
+    }
+
+    fn molar_isochoric_heat_capacity<D: DualNum<f64> + Copy>(
+        parameters: &Self::Parameters<D>,
+        temperature: D,
+        molar_volume: D,
+        molefracs: &SVector<D, N>,
+    ) -> D {
+        let params = Self::params_from_inner(parameters);
+        let molar_volume = Dual2::from_re(molar_volume);
+        let molefracs = molefracs.map(Dual2::from_re);
+        let (_, _, d2a) = second_derivative(
+            |temperature| {
+                Self::molar_helmholtz_energy(&params, temperature, molar_volume, &molefracs)
+            },
+            temperature,
+        );
+        -temperature * d2a
+    }
+
+    fn molar_isobaric_heat_capacity<D: DualNum<f64> + Copy>(
+        parameters: &Self::Parameters<D>,
+        temperature: D,
+        molar_volume: D,
+        molefracs: &SVector<D, N>,
+    ) -> D {
+        let params = Self::params_from_inner(parameters);
+        let molefracs = molefracs.map(Dual2Vec::from_re);
+        let (_, _, d2a) = hessian(
+            |x| {
+                let [temperature, molar_volume] = x.data.0[0];
+                Self::molar_helmholtz_energy(&params, temperature, molar_volume, &molefracs)
+            },
+            SVector::from([temperature, molar_volume]),
+        );
+        let [[a_tt, a_tv], [_, a_vv]] = d2a.data.0;
+        temperature * (a_tv * a_tv / a_vv - a_tt)
     }
 
     fn pressure_entropy<D: DualNum<f64> + Copy>(

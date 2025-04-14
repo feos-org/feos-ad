@@ -174,6 +174,24 @@ impl<'a, E: TotalHelmholtzEnergy<N>, D: DualNum<f64> + Copy, const N: usize> Sta
             &self.molefracs,
         ))
     }
+
+    pub fn molar_isochoric_heat_capacity(&self) -> MolarEntropy<D> {
+        MolarEntropy::from_reduced(E::molar_isochoric_heat_capacity(
+            &self.eos.parameters,
+            self.reduced_temperature,
+            self.reduced_molar_volume,
+            &self.molefracs,
+        ))
+    }
+
+    pub fn molar_isobaric_heat_capacity(&self) -> MolarEntropy<D> {
+        MolarEntropy::from_reduced(E::molar_isobaric_heat_capacity(
+            &self.eos.parameters,
+            self.reduced_temperature,
+            self.reduced_molar_volume,
+            &self.molefracs,
+        ))
+    }
 }
 
 impl<'a, E: ResidualHelmholtzEnergy<1>, D: DualNum<f64> + Copy> StateAD<'a, E, D, 1> {
@@ -567,6 +585,47 @@ mod test {
             ((state_h.density - vle.liquid().density) / delta).to_reduced(),
             max_relative = 1e-6
         );
+        Ok(())
+    }
+
+    #[test]
+    fn test_heat_capacities() -> EosResult<()> {
+        let (joback, ideal_gas) = joback()?;
+        let (pcsaft, residual) = pcsaft()?;
+        let eos = Arc::new(EquationOfState::new(ideal_gas, residual));
+        let eos_ad = EquationOfStateAD::new([joback], pcsaft)
+            .wrap()
+            .derivatives(([joback.params()], pcsaft.params()));
+
+        let temperature = 300.0 * KELVIN;
+        let pressure = 5.0 * BAR;
+
+        let state = State::new_npt(
+            &eos,
+            temperature,
+            pressure,
+            &(arr1(&[1.0]) * MOL),
+            DensityInitialization::None,
+        )?;
+        let state_ad = StateAD::new_tp(
+            &eos_ad,
+            temperature,
+            pressure,
+            SVector::from([1.0]),
+            DensityInitialization::None,
+        )?;
+
+        let c_v = state.molar_isochoric_heat_capacity(Contributions::Total);
+        let c_p = state.molar_isobaric_heat_capacity(Contributions::Total);
+        let c_v_ad = state_ad.molar_isochoric_heat_capacity();
+        let c_p_ad = state_ad.molar_isobaric_heat_capacity();
+
+        println!("{c_v} {c_p}");
+        println!("{c_v_ad} {c_p_ad}");
+
+        assert_relative_eq!(c_v, c_v_ad, max_relative = 1e-10);
+        assert_relative_eq!(c_p, c_p_ad, max_relative = 1e-10);
+
         Ok(())
     }
 }
