@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-04-14
+### Added
+- Added `StateAD::molar_isochoric_heat_capacity` and `StateAD::molar_isobaric_heat_capacity`. [#3](https://github.com/feos-org/feos-ad/pull/3)
+
 ## [0.2.0] - 2025-01-27
 ### Changed
 - Made `PcSaftBinary` generic for associating/non-associating systems. [#2](https://github.com/feos-org/feos-ad/pull/2)
