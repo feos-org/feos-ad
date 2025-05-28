@@ -210,7 +210,7 @@ impl<'a, E: ResidualHelmholtzEnergy<N>, D: DualNum<f64> + Copy, const N: usize>
         molefracs: SVector<D, N>,
     ) -> EosResult<Self>
     where
-        SMatrix<DualVec<D, f64, Const<2>>, N, N>: Eigen<DualVec<D, f64, Const<2>>, N>,
+        Const<N>: Eigen<N>,
     {
         let moles = Moles::from_reduced(arr1(molefracs.map(|x| x.re()).as_slice()));
         let state = State::critical_point(&eos.eos, Some(&moles), None, Default::default())?;
@@ -232,7 +232,7 @@ impl<E: ResidualHelmholtzEnergy<N>, D: DualNum<f64> + Copy, const N: usize> Stat
         molefracs: &SVector<DualVec<D, f64, Const<2>>, N>,
     ) -> SVector<DualVec<D, f64, Const<2>>, 2>
     where
-        SMatrix<DualVec<D, f64, Const<2>>, N, N>: Eigen<DualVec<D, f64, Const<2>>, N>,
+        Const<N>: Eigen<N>,
     {
         // calculate M
         let sqrt_z = molefracs.map(|z| z.sqrt());
@@ -249,7 +249,7 @@ impl<E: ResidualHelmholtzEnergy<N>, D: DualNum<f64> + Copy, const N: usize> Stat
         let m = m.component_mul(&z_mix) / temperature + SMatrix::identity();
 
         // calculate smallest eigenvalue and corresponding eigenvector
-        let (l, u) = m.eigen();
+        let (l, u) = <Const<N> as Eigen<N>>::eigen(m);
 
         let (_, _, _, c2) = third_derivative(
             |s| {
@@ -268,20 +268,20 @@ impl<E: ResidualHelmholtzEnergy<N>, D: DualNum<f64> + Copy, const N: usize> Stat
     }
 }
 
-pub trait Eigen<D, const N: usize> {
-    fn eigen(&self) -> (D, SVector<D, N>);
+pub trait Eigen<const N: usize> {
+    fn eigen<D: DualNum<f64> + Copy>(matrix: SMatrix<D, N, N>) -> (D, SVector<D, N>);
 }
 
-impl<D: DualNum<f64> + Copy> Eigen<D, 1> for SMatrix<D, 1, 1> {
-    fn eigen(&self) -> (D, SVector<D, 1>) {
-        let [[l]] = self.data.0;
+impl Eigen<1> for Const<1> {
+    fn eigen<D: DualNum<f64> + Copy>(matrix: SMatrix<D, 1, 1>) -> (D, SVector<D, 1>) {
+        let [[l]] = matrix.data.0;
         (l, SVector::from([D::one()]))
     }
 }
 
-impl<D: DualNum<f64> + Copy> Eigen<D, 2> for SMatrix<D, 2, 2> {
-    fn eigen(&self) -> (D, SVector<D, 2>) {
-        let [[a, b], [_, c]] = self.data.0;
+impl Eigen<2> for Const<2> {
+    fn eigen<D: DualNum<f64> + Copy>(matrix: SMatrix<D, 2, 2>) -> (D, SVector<D, 2>) {
+        let [[a, b], [_, c]] = matrix.data.0;
         let l = (a + c - ((a - c).powi(2) + b * b * 4.0).sqrt()) * 0.5;
         let u = SVector::from([D::one(), (l - a) / b]);
         let u = u / (u[0] * u[0] + u[1] * u[1]).sqrt();

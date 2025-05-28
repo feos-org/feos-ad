@@ -6,9 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2025-05-28
+### Changed
+- Simplify the `Eigen` trait for better readable trait bounds. [#5](https://github.com/feos-org/feos-ad/pull/5)
+
 ## [0.2.2] - 2025-05-28
 ### Fixed
-- Import `Eigen` to be able to calculate critical points for pure components and binary mixtures generically.  [#4](https://github.com/feos-org/feos-ad/pull/4)
+- Export `Eigen` to be able to calculate critical points for pure components and binary mixtures generically. [#4](https://github.com/feos-org/feos-ad/pull/4)
 
 ## [0.2.1] - 2025-04-14
 ### Added
