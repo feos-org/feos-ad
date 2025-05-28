@@ -2,7 +2,7 @@ pub mod eos;
 
 mod core;
 pub use core::{
-    EquationOfStateAD, HelmholtzEnergyWrapper, IdealGasAD, NamedParameters, ParametersAD,
+    Eigen, EquationOfStateAD, HelmholtzEnergyWrapper, IdealGasAD, NamedParameters, ParametersAD,
     PhaseEquilibriumAD, ResidualHelmholtzEnergy, StateAD, TotalHelmholtzEnergy,
 };
 

@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2025-05-28
+### Fixed
+- Import `Eigen` to be able to calculate critical points for pure components and binary mixtures generically.  [#4](https://github.com/feos-org/feos-ad/pull/4)
+
 ## [0.2.1] - 2025-04-14
 ### Added
 - Added `StateAD::molar_isochoric_heat_capacity` and `StateAD::molar_isobaric_heat_capacity`. [#3](https://github.com/feos-org/feos-ad/pull/3)
