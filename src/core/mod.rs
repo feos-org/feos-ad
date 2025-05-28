@@ -10,7 +10,7 @@ mod state;
 mod total;
 pub use phase_equilibria::PhaseEquilibriumAD;
 pub use residual::{ParametersAD, ResidualHelmholtzEnergy};
-pub use state::StateAD;
+pub use state::{Eigen, StateAD};
 pub use total::{EquationOfStateAD, IdealGasAD, TotalHelmholtzEnergy};
 
 /// Used internally to implement the [Residual] and [IdealGas] traits from FeOs.
