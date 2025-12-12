@@ -3,6 +3,9 @@
 [![crate](https://img.shields.io/crates/v/feos-ad.svg)](https://crates.io/crates/feos-ad)
 [![documentation](https://docs.rs/feos-ad/badge.svg)](https://docs.rs/feos-ad)
 
+> [!NOTE]  
+> This repository is archived. All the functionality has been incorporated directly into the [`feos`](https://github.com/feos-org/feos) repository and all further developments are made there.
+
 The `FeOs-AD` crate builds on the implementation of phase equilibrium calculations in `FeOs` to provide implicit automatic differentiation of properties and phase equilibria based on Helmholtz energy equations of state. Derivatives can be determined for any inputs, like temperature or pressure, but also model parameters.
 
 Derivatives are calculated using forward automatic differentiation with generalized (hyper-) dual numbers from the [`num-dual`](https://github.com/itt-ustutt/num-dual) crate.
